@@ -457,24 +457,6 @@ NIL
 NIL
 0
 
-PLOT
-0
-420
-400
-540
-Population Size
-time
-bugs
-0.0
-1000.0
-0.0
-10.0
-true
-true
-"" ""
-PENS
-"bugs" 1.0 0 -16777216 true "" "plotxy ticks count bugs"
-
 MONITOR
 0
 375
