@@ -535,24 +535,6 @@ automated-bugs-reproduce?
 1
 -1000
 
-PLOT
-0
-240
-400
-360
-Energy Levels of Bugs
-energy level
-bugs
-0.0
-500.0
-0.0
-40.0
-true
-true
-"let num-bars 20\n let y-axis-max-histogram  (5 + ((floor (count bugs with [floor (energy / 20) = (item 0 modes [floor (energy / 20)] of bugs)] / 5)) * 5))\n set-current-plot \"Energy Levels of Bugs\"\n plot-pen-reset       \n  ;; autoscale x axis by 500s\n set-plot-x-range (500 * floor (min-energy-of-any-bug / 500)) (500 + 500 *  (floor (max-energy-of-any-bug / 500)))\n  if y-axis-max-histogram < 10 [set y-axis-max-histogram 10]\n  ;; autoscale y axis by 5s, when above 10\n  set-plot-y-range 0 y-axis-max-histogram   \n  set-histogram-num-bars num-bars\n  set  x-min-histogram plot-x-min\n  set  x-max-histogram plot-x-max\n  set   x-interval-histogram (x-max-histogram - x-min-histogram) / num-bars\n  \n  histogram [ energy ] of bugs" "let num-bars 20\n let y-axis-max-histogram  (5 + ((floor (count bugs with [floor (energy / 20) = (item 0 modes [floor (energy / 20)] of bugs)] / 5)) * 5))\n set-current-plot \"Energy Levels of Bugs\"\n plot-pen-reset       \n  ;; autoscale x axis by 500s\n set-plot-x-range (500 * floor (min-energy-of-any-bug / 500)) (500 + 500 *  (floor (max-energy-of-any-bug / 500)))\n  if y-axis-max-histogram < 10 [set y-axis-max-histogram 10]\n  ;; autoscale y axis by 5s, when above 10\n  set-plot-y-range 0 y-axis-max-histogram   \n  set-histogram-num-bars num-bars\n  set  x-min-histogram plot-x-min\n  set  x-max-histogram plot-x-max\n  set   x-interval-histogram (x-max-histogram - x-min-histogram) / num-bars\n  \n  histogram [ energy ] of bugs"
-PENS
-"bugs" 20.0 1 -16777216 true "" ""
-
 CHOOSER
 260
 80
