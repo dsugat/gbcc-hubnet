@@ -1,4 +1,3 @@
-globals
 [
   ;; global variables related to color
   bugs-color
@@ -107,7 +106,7 @@ end
 to setup-a-new-bugs-for-a-new-player [p-user-id]
    set hidden? false
    set color (magenta - 1)
-   set size 2  ;; easier to see
+   set size 1  ;; easier to see
    set label-color blue
 
    set energy 10 * bugs-energy-from-food
