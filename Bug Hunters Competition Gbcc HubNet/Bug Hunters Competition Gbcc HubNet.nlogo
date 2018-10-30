@@ -1,4 +1,4 @@
-[
+globals [
   ;; global variables related to color
   bugs-color
   grass-color
@@ -82,7 +82,7 @@ to setup
   set offspring-bugs 0
 
   ;; setting colors
-  set bugs-color (violet )
+  set bugs-color (violet)
   set grass-color (green)
   set dirt-color (gray - 1)
   set not-grown-back-color white
@@ -474,7 +474,7 @@ initial-#-automated-bugs
 initial-#-automated-bugs
 0
 100
-30.0
+20.0
 1
 1
 NIL
@@ -551,7 +551,7 @@ player-vision
 player-vision
 1
 10
-4.0
+0.0
 1
 1
 NIL
@@ -632,7 +632,7 @@ sprout-delay-time
 sprout-delay-time
 0
 200
-50.0
+0.0
 50
 1
 NIL
