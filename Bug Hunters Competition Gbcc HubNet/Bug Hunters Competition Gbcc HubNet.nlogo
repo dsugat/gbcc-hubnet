@@ -73,11 +73,12 @@ to setup
 
   ;; variables for bugs
   set-default-shape bugs "bug"
-  set bugs-size 1.0
-  set bugs-stride 0.2
+  set bugs-size 1
+  set bugs-stride 1
   set bugs-reproduce-energy 100
   set bugs-energy-from-food 4  ;; set to 4 by default in this model.
-                               ;; In other Bug Hunt Models (such as Bug Hunt Consumers), bug-energy-from-food has a default of 4, but is slider adjustable.
+                               ;; In other Bug Hunt Models (such as Bug Hunt Consumers), bug-energy-from-food has a default of 4, but is slider adjustable
+
   set dead-bugs 0
   set offspring-bugs 0
 
@@ -106,7 +107,7 @@ end
 to setup-a-new-bugs-for-a-new-player [p-user-id]
    set hidden? false
    set color (magenta - 1)
-   set size 1.4  ;; easier to see
+   set size 2  ;; easier to see
    set label-color blue
 
    set energy 10 * bugs-energy-from-food
@@ -126,8 +127,9 @@ to go
     ask bugs [
       if automated-bugs-lose-energy? [ set energy energy - 1 ] ;; deduct energy for bugs only if bugs-lose-energy? switch is on
       if automated-bugs-reproduce? [ reproduce-bugs ]
-      if automated-bugs-wander? [right random 30 left random 30]
+      if automated-bugs-wander? and not controlled-by-player? [rt random 30 lt random 30]
       fd bugs-stride
+      ask players with [user-id = [owned-by] of myself] [ fd bugs-stride ]
       bugs-eat-grass
       bug-death
     ]
@@ -263,7 +265,7 @@ to assign-bug-to-player
       set breed bugs
       set child-bug self
       setup-a-new-bugs-for-a-new-player p-user-id
-      ask parent-player [ create-link-from child-bug [ tie ] set dead? false]
+      ask parent-player [ create-link-from child-bug [  ] set dead? false]
     ]
   ]
 end
@@ -289,7 +291,13 @@ to listen-clients
     [
       ifelse hubnet-exit-message?
       [ remove-player ]
-      [ ask players with [user-id = hubnet-message-source] [execute-command hubnet-message-tag hubnet-message ]]
+      [ ask players with [user-id = hubnet-message-source] [
+        execute-command hubnet-message-tag
+        ask my-agent [
+          set heading [heading] of myself
+        ]
+        ]
+      ]
     ]
   ]
 end
@@ -306,15 +314,12 @@ to check-reset-perspective
 end
 
 
-to execute-command [command msg]
-  if command = "View" [ orient-my-turtle command msg ]
+to execute-command [command]
+  if command = "up" [ show (word "person: " heading)set heading 0 show (word "person:" heading) show (word "bug:" [heading] of my-agent) ]
+  if command = "down" [ set heading 180 ]
+  if command = "right" [ set heading 90  ]
+  if command = "left" [ set heading 270 ]
 end
-
-
-to execute-turn [new-heading]
-  set heading new-heading
-end
-
 
 to display-labels
   let b-color 0
@@ -334,13 +339,6 @@ to display-labels
   ]
 end
 
-
-to orient-my-turtle [name coords]
-  let next-destination-patch patch first coords last coords
-  if patch-here != destination-patch [
-    ask my-agent [ set destination-patch next-destination-patch face destination-patch ]
-  ]
-end
 
 
 to-report my-agent
@@ -458,10 +456,10 @@ NIL
 0
 
 MONITOR
-0
-375
-75
-420
+5
+245
+80
+290
 # bugs
 count bugs
 3
@@ -477,7 +475,7 @@ initial-#-automated-bugs
 initial-#-automated-bugs
 0
 100
-0.0
+30.0
 1
 1
 NIL
@@ -561,10 +559,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-77
-375
-174
-420
+85
+245
+182
+290
 bugs that died
 dead-bugs
 17
@@ -572,10 +570,10 @@ dead-bugs
 11
 
 MONITOR
-176
-375
-273
-420
+190
+245
+287
+290
 # offspring
 offspring-bugs
 17
@@ -605,10 +603,10 @@ include-clients-as-bugs?
 -1000
 
 MONITOR
-320
-360
-400
-405
+295
+245
+375
+290
 x-interval
 x-interval-histogram
 17
@@ -640,6 +638,24 @@ sprout-delay-time
 1
 NIL
 HORIZONTAL
+
+PLOT
+0
+300
+390
+450
+Energy Levels of Bugs
+energy level
+bugs
+0.0
+500.0
+0.0
+40.0
+true
+false
+"let num-bars 20\n let y-axis-max-histogram  (5 + ((floor (count bugs with [floor (energy / 20) = (item 0 modes [floor (energy / 20)] of bugs)] / 5)) * 5))\n set-current-plot \"Energy Levels of Bugs\"\n plot-pen-reset       \n  ;; autoscale x axis by 500s\n set-plot-x-range (500 * floor (min-energy-of-any-bug / 500)) (500 + 500 *  (floor (max-energy-of-any-bug / 500)))\n  if y-axis-max-histogram < 10 [set y-axis-max-histogram 10]\n  ;; autoscale y axis by 5s, when above 10\n  set-plot-y-range 0 y-axis-max-histogram   \n  set-histogram-num-bars num-bars\n  set  x-min-histogram plot-x-min\n  set  x-max-histogram plot-x-max\n  set   x-interval-histogram (x-max-histogram - x-min-histogram) / num-bars\n  \n  histogram [energy] of bugs" "let num-bars 20\n let y-axis-max-histogram  (5 + ((floor (count bugs with [floor (energy / 20) = (item 0 modes [floor (energy / 20)] of bugs)] / 5)) * 5))\n set-current-plot \"Energy Levels of Bugs\"\n plot-pen-reset       \n  ;; autoscale x axis by 500s\n set-plot-x-range (500 * floor (min-energy-of-any-bug / 500)) (500 + 500 *  (floor (max-energy-of-any-bug / 500)))\n  if y-axis-max-histogram < 10 [set y-axis-max-histogram 10]\n  ;; autoscale y axis by 5s, when above 10\n  set-plot-y-range 0 y-axis-max-histogram   \n  set-histogram-num-bars num-bars\n  set  x-min-histogram plot-x-min\n  set  x-max-histogram plot-x-max\n  set   x-interval-histogram (x-max-histogram - x-min-histogram) / num-bars\n  \n  histogram [ energy ] of bugs"
+PENS
+"bugs" 20.0 1 -16777216 true "" ""
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -935,24 +951,6 @@ NIL
 3
 1
 
-PLOT
-10
-210
-345
-360
-Energy Levels of Bugs
-energy level
-bugs
-0.0
-500.0
-0.0
-10.0
-true
-true
-"" ""
-PENS
-"bugs" 20.0 1 -16777216 true "" ""
-
 MONITOR
 10
 10
@@ -963,23 +961,61 @@ NIL
 0
 1
 
-PLOT
-10
-60
-345
-210
-Population Size
-time
-bugs
-0.0
-1000.0
-0.0
-10.0
-true
-true
-"" ""
-PENS
-"bugs" 1.0 0 -16777216 true "" ""
+BUTTON
+135
+80
+198
+113
+up
+NIL
+NIL
+1
+T
+OBSERVER
+NIL
+W
+
+BUTTON
+220
+120
+283
+153
+right
+NIL
+NIL
+1
+T
+OBSERVER
+NIL
+D
+
+BUTTON
+50
+120
+113
+153
+left
+NIL
+NIL
+1
+T
+OBSERVER
+NIL
+A
+
+BUTTON
+135
+120
+197
+153
+down
+NIL
+NIL
+1
+T
+OBSERVER
+NIL
+S
 
 @#$#@#$#@
 default
