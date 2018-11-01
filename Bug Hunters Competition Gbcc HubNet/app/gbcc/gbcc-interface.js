@@ -19,6 +19,7 @@ Interface = (function() {
     $(".netlogo-widget").addClass("hidden");
     $(".gbcc-widget").addClass("hidden");    
     $(".netlogo-model-title").removeClass("hidden");
+    $("#netlogo-title").html("");
     // show Welcome Students reporter
     var index = components.componentRange[0];
     var widget = "<div id='netlogo-monitor-"+index+"' class='netlogo-widget netlogo-monitor netlogo-output login login-welcome-student'>"+
@@ -94,6 +95,8 @@ Interface = (function() {
       ($("#tips").css("display") === "none") ? $("#tips").css("display","inline-block") : $("#tips").css("display","none"); 
     });
     $("#exportHtmlButton").css("display","none");
+    $(".netlogo-interface-unlocker-container").css("display","none");
+    $($(".netlogo-toggle-text")[1]).css("display","none")
   }
 
   function displayTeacherInterface(room, components) {
@@ -105,6 +108,7 @@ Interface = (function() {
     $(".netlogo-view-container").removeClass("hidden");
     $(".netlogo-tab-area").removeClass("hidden");
     $(".admin-body").css("display","none");
+    $(".netlogo-interface-unlocker-container").css("display","flex");
   }
 
   function displayStudentInterface(room, components, activityType) {
@@ -128,6 +132,7 @@ Interface = (function() {
       $(".netlogo-view-container").css("pointer-events","auto");
       $(".netlogo-tab-area").removeClass("hidden");
     }
+    $(".netlogo-interface-unlocker-container").css("display","flex");
   }
 
   function displayDisconnectedInterface() {

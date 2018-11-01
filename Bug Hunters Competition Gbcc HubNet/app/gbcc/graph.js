@@ -27,14 +27,18 @@ Graph = (function() {
       applet1 = new GGBApplet({filename: "geogebra-default.ggb","showToolbar":true, "appletOnLoad": appletOnLoadHidden}, true);
       applet1.inject('graphContainer');
       setupEventListeners();
+      
+      
+      /*
       spanText = "<form action='exportggb' method='post' id='exportggb' enctype='multipart/form-data' style='display: none;'>";
       spanText += "<textarea cols='50' id='ggbxml' type='text' wrap='hard' name='ggbxml' value=''></textarea>";//" style='display: none;'>";
       spanText += "<input id='ggbfilename' type='text' name='ggbfilename' value=''>";
       spanText += "<button type='submit' id='exportggbbutton' ></button></form>";
+      */
       
-      spanText += "<form action='importggbzip' method='post' id='importggbzip' enctype='multipart/form-data' name='wassup' style='display: none;'>";
-      spanText += "<input id='ggbzip' type='file' name='ggbzip' value=''>";//" style='display: none;'>";
-      spanText += "<button type='submit' id='importggbzipbutton'></button></form>";
+      //spanText += "<form action='importggbzip' method='post' id='importggbzip' enctype='multipart/form-data' name='wassup' style='display: none;'>";
+      //spanText += "<input id='ggbzip' type='file' name='ggbzip' value=''>";//" style='display: none;'>";
+      //spanText += "<button type='submit' id='importggbzipbutton'></button></form>";
       $("body").append(spanText);
     }
   }
@@ -57,13 +61,16 @@ Graph = (function() {
   }
   
   function appletOnLoadDeleteFile(filename) {
-    console.log("APPLET ONLOAD VISIBLE DELETE FILE");
-    socket.emit('delete file', {'filename': filename});
+    console.log("applet onload delete file");
     showGraph();
     updateGraph(); 
     //$("#graphContainer").css("display","inline-block");
     //$(".netlogo-view-container").css("z-index","1");
     ggbApplet.setErrorDialogsActive(false);   
+    console.log(filename);
+    console.log("APPLET ONLOAD VISIBLE DELETE FILE");
+    console.log(ggbApplet);
+    socket.emit('delete file', {'filename': filename});
   }
   
   function setupEventListeners() {
@@ -205,47 +212,51 @@ Graph = (function() {
     $("#ggbzip").value = "";
   }
 
-  function importGgb(filename) {
-    console.log("import ggb");
+  function importGgbFile(filename) {
+    console.log("import ggb filename "+filename);
     applet1 = new GGBApplet({filename: filename,"showToolbar":true, "appletOnLoad": appletOnLoadVisible}, true);
     applet1.inject('graphContainer');
   }
   
   function importGgbDeleteFile(filename) {
-    console.log("import ggb");
+    console.log("import ggb delete file "+filename);
     applet1 = new GGBApplet({filename: filename,"showToolbar":true, "appletOnLoad": appletOnLoadDeleteFile(filename)}, true);
     applet1.inject('graphContainer');
   }
   
-  function importGgbFromPopup() {
-    $("#ggbzip").one("change", function() {
-      $("#ggbzip").off();
+  function importGgb() {
+    console.log("import ggb");
+    $("#importgbccfile").one("change", function() {
+      $("#importgbccfile").off();
+      //$("#importgbcctype").val("ggb");
       var files = $(this).get(0).files;
       if (files.length > 0){
         var formData = new FormData();
         var file = files[0];
-        formData.append(socket.id, file, file.name);
+        formData.append(socket.id, file);
         $.ajax({
-           url: '/importggbfrompopup',
+           url: '/importgbccform?filetype=ggb',
            type: 'POST',
            data: formData,
            processData: false,
            contentType: false,
            success: function(data){
                console.log('upload successful!\n' + data);
-              $("#ggbzip").val("");
+              $("#importgbccfile").val("");
            }
          });
        }
     });
-    $("#ggbzip").click();
-    $("#ggbzip").value = "";
+    $("#importgbccfile").click();
+    $("#importgbccfile").value = "";
   }
  
   function exportGgb(filename) {
-    $("#ggbfilename").val(filename);
+    console.log("export ggb "+filename);
+    $("#exportgbccfilename").val(filename);
     $("#ggbxml").val(ggbApplet.getXML());
-    $("#exportggb").submit();
+    $("#exportgbcctype").val("ggb");
+    $("#exportgbccform").submit();
   }
   
   function getGgbList() {
@@ -634,7 +645,7 @@ Graph = (function() {
     mouseOff: mouseOff,
     mouseOn: mouseOn,
     uploadGgb: uploadGgb,
-    importGgbFromPopup: importGgbFromPopup,
+    importGgbFile: importGgbFile,
     getGgbList: getGgbList,
     importGgbDeleteFile: importGgbDeleteFile,
     

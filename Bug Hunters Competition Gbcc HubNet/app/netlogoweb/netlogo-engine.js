@@ -8554,7 +8554,7 @@ function hasOwnProperty(obj, prop) {
     };
 
     Breed.prototype.contains = function(agent) {
-      return this.members[this._getAgentIndex(agent)] === agent;
+      return this.members.indexOf(agent) !== -1;
     };
 
     Breed.prototype.remove = function(agent) {
@@ -9975,6 +9975,50 @@ function hasOwnProperty(obj, prop) {
 
     Patch.prototype._optimalNSum4 = function(varName) {
       return this._neighborSum(this.getNeighbors4(), varName);
+    };
+
+    Patch.prototype._ifFalse = function(value, replacement) {
+      if (value === false) {
+        return replacement;
+      } else {
+        return value;
+      }
+    };
+
+    Patch.prototype._optimalPatchHereInternal = function() {
+      return this;
+    };
+
+    Patch.prototype._optimalPatchNorth = function() {
+      return this.world.topology._getPatchNorth(this.pxcor, this.pycor) || Nobody;
+    };
+
+    Patch.prototype._optimalPatchEast = function() {
+      return this.world.topology._getPatchEast(this.pxcor, this.pycor) || Nobody;
+    };
+
+    Patch.prototype._optimalPatchSouth = function() {
+      return this.world.topology._getPatchSouth(this.pxcor, this.pycor) || Nobody;
+    };
+
+    Patch.prototype._optimalPatchWest = function() {
+      return this.world.topology._getPatchWest(this.pxcor, this.pycor) || Nobody;
+    };
+
+    Patch.prototype._optimalPatchNorthEast = function() {
+      return this.world.topology._getPatchNorthEast(this.pxcor, this.pycor) || Nobody;
+    };
+
+    Patch.prototype._optimalPatchSouthEast = function() {
+      return this.world.topology._getPatchSouthEast(this.pxcor, this.pycor) || Nobody;
+    };
+
+    Patch.prototype._optimalPatchSouthWest = function() {
+      return this.world.topology._getPatchSouthWest(this.pxcor, this.pycor) || Nobody;
+    };
+
+    Patch.prototype._optimalPatchNorthWest = function() {
+      return this.world.topology._getPatchNorthWest(this.pxcor, this.pycor) || Nobody;
     };
 
     return Patch;
@@ -13063,6 +13107,42 @@ function hasOwnProperty(obj, prop) {
         return seenTurtlesSet[id] = true;
       });
       turtles.forEach(f(seenTurtlesSet));
+    };
+
+    Turtle.prototype._optimalPatchHereInternal = function() {
+      return this.getPatchHere();
+    };
+
+    Turtle.prototype._optimalPatchNorth = function() {
+      return this.getPatchHere()._optimalPatchNorth();
+    };
+
+    Turtle.prototype._optimalPatchEast = function() {
+      return this.getPatchHere()._optimalPatchEast();
+    };
+
+    Turtle.prototype._optimalPatchSouth = function() {
+      return this.getPatchHere()._optimalPatchSouth();
+    };
+
+    Turtle.prototype._optimalPatchWest = function() {
+      return this.getPatchHere()._optimalPatchWest();
+    };
+
+    Turtle.prototype._optimalPatchNorthEast = function() {
+      return this.getPatchHere()._optimalPatchNorthEast();
+    };
+
+    Turtle.prototype._optimalPatchSouthEast = function() {
+      return this.getPatchHere()._optimalPatchSouthEast();
+    };
+
+    Turtle.prototype._optimalPatchSouthWest = function() {
+      return this.getPatchHere()._optimalPatchSouthWest();
+    };
+
+    Turtle.prototype._optimalPatchNorthWest = function() {
+      return this.getPatchHere()._optimalPatchNorthWest();
     };
 
     return Turtle;
@@ -19114,14 +19194,13 @@ function hasOwnProperty(obj, prop) {
   module.exports = {
     dumper: void 0,
     init: function(workspace) {
-      var addToStream, adoptCanvas, broadcast, broadcastAvatar, broadcastPlot, broadcastText, broadcastView, clearBroadcast, compileObserverCode, compilePatchCode, compileTurtleCode, exportUniverse, get, getCanvasList, getFileList, getFromUser, getStream, getStreamFromUser, getUserList, getVacantCanvasList, hidePatches, importUniverse, importUniverseFromPopup, restoreGlobals, restoreGlobalsFromUser, runObserverCode, runPatchCode, runTurtleCode, send, set, showPatches, storeGlobals, uploadFile, whoAmI;
+      var addToStream, adoptCanvas, broadcast, broadcastAvatar, broadcastPlot, broadcastText, broadcastView, clearBroadcast, clearBroadcasts, cloneCanvas, compileObserverCode, compilePatchCode, compileTurtleCode, exportMyData, exportOurData, get, getActiveUserList, getCanvasList, getFileList, getFromUser, getStream, getStreamFromUser, getUserList, getVacantIndices, hidePatches, importMyData, importMyDataFile, importOurData, importOurDataFile, removeCanvas, restoreGlobals, restoreGlobalsFromUser, runObserverCode, runPatchCode, runTurtleCode, send, set, showPatches, storeGlobals, whoAmI;
       set = function(messageTag, message) {
         socket.emit('send reporter', {
           hubnetMessageSource: "server",
           hubnetMessageTag: messageTag,
           hubnetMessage: message
         });
-        //userData[myUserId][messageTag] = message;
       };
       get = function(messageTag) {
         if (userData[myUserId][messageTag] != null) {
@@ -19188,8 +19267,11 @@ function hasOwnProperty(obj, prop) {
       broadcastAvatar = function(shape, color, text) {
         return Gallery.broadcastAvatar(shape, color, text);
       };
-      clearBroadcast = function() {
-        return Gallery.clearBroadcast();
+      clearBroadcasts = function() {
+        return Gallery.clearBroadcasts();
+      };
+      clearBroadcast = function(name) {
+        return Gallery.clearBroadcast(name);
       };
       compileObserverCode = function(key, value) {
         return session.compileObserverCode(key, value);
@@ -19242,14 +19324,23 @@ function hasOwnProperty(obj, prop) {
       hidePatches = function() {
         return Gallery.hidePatches();
       };
-      importUniverse = function(filename) {
-        return GbccFileManager.importUniverse(filename);
+      importOurDataFile = function(filename) {
+        return GbccFileManager.importOurDataFile(filename);
       };
-      exportUniverse = function(filename) {
-        return GbccFileManager.exportUniverse(filename);
+      importOurData = function() {
+        return GbccFileManager.importOurData();
       };
-      importUniverseFromPopup = function() {
-        return GbccFileManager.importUniverseFromPopup();
+      exportOurData = function(filename) {
+        return GbccFileManager.exportOurData(filename);
+      };
+      importMyDataFile = function(filename) {
+        return GbccFileManager.importMyDataFile(filename);
+      };
+      importMyData = function() {
+        return GbccFileManager.importMyData();
+      };
+      exportMyData = function(filename) {
+        return GbccFileManager.exportMyData(filename);
       };
       send = function(messageSource, messageTag, message) {
         socket.emit('send message reporter', {
@@ -19274,17 +19365,23 @@ function hasOwnProperty(obj, prop) {
       getUserList = function() {
         return Gallery.getUserList();
       };
-      getVacantCanvasList = function() {
-        return Gallery.getVacantCanvasList();
+      getVacantIndices = function() {
+        return Gallery.getVacantIndices();
       };
       getUserList = function() {
         return Gallery.getUserList();
       };
-      uploadFile = function() {
-        return GbccFileManager.uploadFile();
+      getActiveUserList = function() {
+        return Gallery.getActiveUserList();
       };
       getFileList = function() {
         return GbccFileManager.getFileList();
+      };
+      cloneCanvas = function() {
+        return Gallery.cloneCanvas();
+      };
+      removeCanvas = function(userId) {
+        return Gallery.cloneCanvas(userId);
       };
       return {
         name: "gbcc",
@@ -19299,6 +19396,7 @@ function hasOwnProperty(obj, prop) {
           "BROADCAST-PLOT": broadcastPlot,
           "BROADCAST-AVATAR": broadcastAvatar,
           "BROADCAST-TEXT": broadcastText,
+          "CLEAR-BROADCASTS": clearBroadcasts,
           "CLEAR-BROADCAST": clearBroadcast,
           "COMPILE-OBSERVER-CODE": compileObserverCode,
           "COMPILE-TURTLE-CODE": compileTurtleCode,
@@ -19312,17 +19410,22 @@ function hasOwnProperty(obj, prop) {
           "GET-STREAM-FROM-USER": getStreamFromUser,
           "SHOW-PATCHES": showPatches,
           "HIDE-PATCHES": hidePatches,
-          "IMPORT-UNIVERSE": importUniverse,
-          "EXPORT-UNIVERSE": exportUniverse,
-          "IMPORT-UNIVERSE-FROM-POPUP": importUniverseFromPopup,
+          "IMPORT-OUR-DATA": importOurData,
+          "EXPORT-OUR-DATA": exportOurData,
+          "IMPORT-OUR-DATA-FILE": importOurDataFile,
+          "IMPORT-MY-DATA": importMyData,
+          "EXPORT-MY-DATA": exportMyData,
+          "IMPORT-MY-DATA-FILE": importMyDataFile,
           "SEND": send,
           "BROADCAST": broadcast,
           "GET-FILE-LIST": getFileList,
-          "UPLOAD-FILE": uploadFile,
           "GET-CANVAS-LIST": getCanvasList,
-          "GET-VACANT-CANVAS-LIST": getVacantCanvasList,
+          "GET-VACANT-INDICES": getVacantIndices,
           "GET-USER-LIST": getUserList,
-          "ADOPT-CANVAS": adoptCanvas
+          "GET-ACTIVE-USER-LIST": getActiveUserList,
+          "ADOPT-CANVAS": adoptCanvas,
+          "CLONE-CANVAS": cloneCanvas,
+          "REMOVE-CANVAS": removeCanvas
         }
       };
     }
@@ -19335,7 +19438,7 @@ function hasOwnProperty(obj, prop) {
   module.exports = {
     dumper: void 0,
     init: function(workspace) {
-      var bringToFront, centerView, createObject, createObjects, createPoint, createPoints, deleteObject, deleteObjects, deletePoint, deletePoints, evalCommand, evalReporter, exportFile, exportGgb, exportWorld, getAll, getCommandString, getData, getDraggable, getGgbList, getGraphOffset, getObject, getObjectType, getObjects, getOpacity, getPoint, getPoints, getPointsString, getValue, getValueString, getX, getXy, getY, graphToPatch, hideGraph, hideObject, hideObjectLabel, hideToolbar, importFile, importGgb, importGgbFromPopup, importWorld, mouseOff, mouseOn, objectExists, patchToGraph, renameObject, sendToBack, setAll, setData, setDraggable, setGraphOffset, setOpacity, setX, setXy, setY, showGraph, showObject, showObjectLabel, showToolbar, updateGraph, uploadGgb;
+      var bringToFront, centerView, createObject, createObjects, createPoint, createPoints, deleteObject, deleteObjects, deletePoint, deletePoints, evalCommand, evalReporter, exportGgb, getAll, getCommandString, getData, getDraggable, getGgbList, getGraphOffset, getObject, getObjectType, getObjects, getOpacity, getPoint, getPoints, getPointsString, getValue, getValueString, getX, getXy, getY, graphToPatch, hideGraph, hideObject, hideObjectLabel, hideToolbar, importGgb, importGgbFile, mouseOff, mouseOn, objectExists, patchToGraph, renameObject, sendToBack, setAll, setData, setDraggable, setGraphOffset, setOpacity, setX, setXy, setY, showGraph, showObject, showObjectLabel, showToolbar, updateGraph;
       hideGraph = function() {
         return Graph.hideGraph();
       };
@@ -19345,17 +19448,11 @@ function hasOwnProperty(obj, prop) {
       setData = function(data) {
         return Graph.setData(data);
       };
-      importGgb = function(filename) {
-        return Graph.importGgb(filename);
+      importGgbFile = function(filename) {
+        return Graph.importGgbFile(filename);
       };
       getData = function() {
         return Graph.getData();
-      };
-      exportFile = function(filename) {
-        return Graph.exportFile(filename);
-      };
-      importFile = function(filename) {
-        return Graph.importFile(filename);
       };
       createPoint = function(name, center) {
         return Graph.createPoint(name, center);
@@ -19450,12 +19547,6 @@ function hasOwnProperty(obj, prop) {
       getPointsString = function() {
         return Graph.getPointsString();
       };
-      importWorld = function(filename) {
-        return Graph.importWorld(filename);
-      };
-      exportWorld = function(filename) {
-        return Graph.exportWorld(filename);
-      };
       updateGraph = function() {
         return Graph.updateGraph();
       };
@@ -19510,17 +19601,14 @@ function hasOwnProperty(obj, prop) {
       getCommandString = function(name) {
         return Graph.getCommandString(name);
       };
-      uploadGgb = function() {
-        return Graph.uploadGgb();
-      };
       getGgbList = function() {
         return Graph.getGgbList();
       };
       getValueString = function(name) {
         return Graph.getValueString(name);
       };
-      importGgbFromPopup = function() {
-        return Graph.importGgbFromPopup();
+      importGgb = function() {
+        return Graph.importGgb();
       };
       return {
         name: "graph",
@@ -19528,10 +19616,8 @@ function hasOwnProperty(obj, prop) {
           "HIDE-GRAPH": hideGraph,
           "SHOW-GRAPH": showGraph,
           "SET-DATA": setData,
-          "IMPORT-GGB": importGgb,
+          "IMPORT-GGB-FILE": importGgbFile,
           "GET-DATA": getData,
-          "EXPORT-FILE": exportFile,
-          "IMPORT-FILE": importFile,
           "CREATE-POINT": createPoint,
           "SET-OPACITY": setOpacity,
           "GET-OPACITY": getOpacity,
@@ -19563,8 +19649,6 @@ function hasOwnProperty(obj, prop) {
           "EVAL-COMMAND": evalCommand,
           "EVAL-REPORTER": evalReporter,
           "GET-POINTS-STRING": getPointsString,
-          "IMPORT-WORLD": importWorld,
-          "EXPORT-WORLD": exportWorld,
           "UPDATE-GRAPH": updateGraph,
           "SHOW-OBJECT-LABEL": showObjectLabel,
           "HIDE-OBJECT-LABEL": hideObjectLabel,
@@ -19583,10 +19667,9 @@ function hasOwnProperty(obj, prop) {
           "MOUSE-ON": mouseOn,
           "MOUSE-OFF": mouseOff,
           "GET-COMMAND-STRING": getCommandString,
-          "UPLOAD-GGB": uploadGgb,
           "GET-GGB-LIST": getGgbList,
           "GET-VALUE-STRING": getValueString,
-          "IMPORT-GGB-FROM-POPUP": importGgbFromPopup
+          "IMPORT-GGB": importGgb
         }
       };
     }
@@ -20511,6 +20594,8 @@ function hasOwnProperty(obj, prop) {
   module.exports = {
     isApplet: false,
     isWeb: true,
+    behaviorSpaceName: "",
+    behaviorSpaceRun: 0,
     version: "1.0"
   };
 
@@ -21091,9 +21176,9 @@ r("mori.mutable.disj.f2",ge.a);r("mori.mutable.disj.fn",ge.K);;return this.mori;
     } else if (x instanceof TurtleReference) {
       return formatTurtleRef(x);
     } else if (x instanceof ExportedCommandLambda) {
-      return "(anonymous command: " + (x.source.replaceAll('"', '""')) + ")";
+      return "(anonymous command: " + (x.source.replace(/"/g, '""')) + ")";
     } else if (x instanceof ExportedReporterLambda) {
-      return "(anonymous reporter: " + (x.source.replaceAll('"', '""')) + ")";
+      return "(anonymous reporter: " + (x.source.replace(/"/g, '""')) + ")";
     } else if (x instanceof ExportedLinkSet) {
       exportInnerLink = function(arg) {
         var id1, id2, plural, ref6;

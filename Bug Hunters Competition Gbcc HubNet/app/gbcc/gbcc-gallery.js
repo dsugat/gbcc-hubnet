@@ -54,6 +54,7 @@ Gallery = (function() {
       var galleryExpandSpan = "<span id='galleryExpandIcon' style='left:"+galleryTabWidth+"'><i class='fa fa-expand' aria-hidden='true'></i></span>";
       
       $(".netlogo-gallery-tab").append(galleryExpandSpan);
+      $("#canvasSize").val("large");
       $( window ).resize(function() {
         if ($(".netlogo-gallery-tab").hasClass("expand")) {
           var galleryExpandWidth = parseFloat($("body").css("width")) - parseFloat($(".netlogo-tab").css("width"));
@@ -130,19 +131,21 @@ Gallery = (function() {
       $("#mapContainer").css("opacity", $(this).val() / 100); 
     });
     $("#opacityWrapper").css("display", "none");
-    
-    //$("body").append("<div class='hiddenfile'><input id='importggb' type='file' style='display:none'></div>");
     $("body").append("<div class='hiddenfile'><input id='importgbccworld' type='file' style='display:none'></div>");
-    spanText = "<form action='exportgbccworld' method='post' id='exportgbccworld' enctype='multipart/form-data' style='display: none;'>";
-    spanText += "<input id='gbccworldfilename' type='text' name='gbccworldfilename' value='' style='display: none;'>";
+    var spanText = "<form action='exportgbccform' method='post' id='exportgbccform' enctype='multipart/form-data' style='display: none;'>";
+    spanText += "<input id='exportgbcctype' type='text' name='exportgbcctype' value=''>";//" style='display: none;'>";
+    spanText += "<textarea cols='50' id='ggbxml' type='text' wrap='hard' name='ggbxml' value=''></textarea>";
+    spanText += "<input id='exportgbccfilename' type='text' name='exportgbccfilename' value=''>";
     spanText += "<input class='roomNameInput' type='text' name='gbccroomname' value='' style='display: none;'>";
     spanText += "<input class='schoolNameInput' type='text' name='gbccschoolname' value='' style='display: none;'>";
-    spanText += "<button type='submit'></button></form>";
-    
-    spanText += "<form action='importgbccuniverse' method='post' id='importggbcuniverse' enctype='multipart/form-data' name='wassup' style='display: none;'>";
-    spanText += "<input id='gbccuniverse' type='file' name='ggbccuniverse' value=''>";//" style='display: none;'>";
-    spanText += "<button type='submit' id='importgbccuniversebutton'></button></form>";
+    spanText += "<input class='myUserIdInput' type='text' name='gbccmyuserid' value='' style='display: none;'>";
+    spanText += "<button type='submit' id='exportgbccbutton'></button></form>";
+    spanText += "<form action='importgbccform' method='post' id='importgbccform' enctype='multipart/form-data' style='display: none;'>";
+    spanText += "<input id='importgbccfile' type='file' name='importgbccfile' value=''>";//" style='display: none;'>";
+    spanText += "<input id='importgbcctype' type='text' name='importgbcctype' value=''>";//" style='display: none;'>";
+    spanText += "<button type='submit' id='importgbccbutton'></button></form>";
     $("body").append(spanText);
+    $(".myUserIdInput").val(myUserId); 
   }
 
   function selectAll() {
@@ -298,6 +301,18 @@ Gallery = (function() {
     }
   }
   
+  function resetCards(li) {
+    var cards = [];
+    $(li).children().each(function() {
+      if ($(this).hasClass("card")) { cards.push(this);}
+    });
+    var index = 0;
+    for (card in cards) {
+      $(cards[card]).css("z-index",index);		
+      index++;
+    }
+  }
+  
   function createCanvas(data) {
     var canvasImg = new Image();
     canvasImg.id = data.id;
@@ -306,15 +321,14 @@ Gallery = (function() {
     var label = $(".gbcc-gallery li").length;
     if ($(".gbcc-gallery").length === 0) { 
       $(".netlogo-gallery-tab-content").append("<div class='gbcc-gallery'><ul></ul></div>"); 
-      $(".canvasSize").val("small");
-      $(".gbcc-gallery").addClass("small");
+      $(".gbcc-gallery").addClass("large");
     }
     var newLiHtml = "<li id='gallery-item-"+data.userId+"' usertype='"+data.userType+"' userid='"+data.userId+"' ";
     newLiHtml += (claimed) ? "claimed=\"true\"" : "claimed=\"false\"";
     newLiHtml += (myUserId === data.userId) ? " myUser=\"true\">" : " myUser=\"false\">";
     newLiHtml += (myUserId === data.userId) ? "<span class=\"label z20 selected\">"+label+"</span>" : "<span class=\"label z20\">"+label+"</span>";
-    newLiHtml += "<span class=\"arrow arrow-left z20\" style=\"display:none\"></span>";//"<i class='fa fa-chevron-left' aria-hidden='true'></i></span>";
-    newLiHtml += "<span class=\"arrow arrow-right z20\" style=\"display:none\"></span>";//"<i class='fa fa-chevron-right' aria-hidden='true'></i></span>";
+    newLiHtml += "<span class=\"arrow arrow-left z20\" style=\"display:none\"><b>&lt;</b></span>";//"<i class='fa fa-chevron-left' aria-hidden='true'></i></span>";
+    newLiHtml += "<span class=\"arrow arrow-right z20\" style=\"display:none\"><b>&gt;</b></span>";//"<i class='fa fa-chevron-right' aria-hidden='true'></i></span>";
     if (allowCanvasForeverButtons) {
       newLiHtml += "<span class=\"forever-icon z20\"><i class='fa fa-refresh' aria-hidden='true'></i></span>";
     } else {
@@ -360,11 +374,24 @@ Gallery = (function() {
       assignZIndex();
   }
   
+  function createEmptyTextCard(data) {
+    newSpan = "<span class=\"card card-text\"><span id=\""+data.id+"\" class=\"text-span empty\"><br>"+data.src.replace("gallery-text","")+"</span></span>";
+    $("#gallery-item-"+data.userId).append(newSpan);
+    var zIndex = $("#gallery-item-"+data.userId+" span:not(.text-span)").length - 5;
+    $("#"+data.id).parent().css("z-index",zIndex);
+    ($("#"+data.id).parent()).click(function() { cardClickHandler(this); });
+      assignZIndex();
+  }
+  
   function updateTextCard(data) {
     $("#"+data.id).html("<br>"+data.src.replace("gallery-text",""));
   }
   
   function displayCanvas(data) {
+    data.tag = data.tag.replace(" ","-");
+    var canvasType = data.tag; // canvas-text, canvas-avatar, canvas-clear, canvas-clear-all
+    if (data.tag.indexOf("canvas-plot-") === 0) { canvasType = "canvas-plot"; }
+    if (data.tag.indexOf("canvas-view-") === 0) { canvasType = "canvas-view"; }
     if (galleryForeverButton === "off") { return; } 
     var canvasData = { 
             id : data.tag + "-" + data.source,
@@ -374,23 +401,34 @@ Gallery = (function() {
             claimed: data.claimed
           }
     if ($("#gallery-item-"+data.source).length === 0 ) { createCanvas(canvasData); } 
-    if (data.message.substring(0,13) === "gallery-clear") {
+    if ($("#canvas-clear-all-" + data.source ).length > 0) {
+      $("#canvas-clear-all-" + data.source).parent().remove();
+    }
+    if (canvasType === "canvas-clear-all") {
       $("#gallery-item-" + data.source +" .card").remove(); 
       canvasData.src="";
-      createTextCard(canvasData);
+      createEmptyTextCard(canvasData);
       return;
+    } else if (canvasType === "canvas-clear") {
+      if ($("#canvas-view-" + data.message.replace(" ","-")+"-"+data.source).length > 0) {
+        $("#canvas-view-" + data.message.replace(" ","-")+"-"+data.source).parent().remove(); 
+        resetCards($("#gallery-item-"+data.source));
+      } else  if ($("#canvas-plot-" + data.message.replace(" ","-")+"-"+data.source).length > 0) {
+        $("#canvas-plot-" + data.message.replace(" ","-")+"-"+data.source).parent().remove();
+        resetCards($("#gallery-item-"+data.source));
+      }
     }
     if (allowMultipleLayers) {
-      if (data.message.substring(0,15) === "<p>gallery-text") {
+      if (canvasType === "canvas-text") {
         ($("#" + data.tag + "-" + data.source).length === 0) ? createTextCard(canvasData) : updateTextCard(canvasData); 
-      } else {
+      } if ((canvasType === "canvas-plot") || (canvasType === "canvas-view") || (canvasType === "canvas-avatar") ){ //else {
         ($("#" + data.tag + "-" + data.source).length === 0) ? createImageCard(canvasData) : updateImageCard(canvasData);
       }
     } else {
       // remove existing cards
       $("#gallery-item-" + data.source +" .card").remove(); 
       // make another one
-      if (data.message.substring(0,15) === "<p>gallery-text") {
+      if (canvasType === "canvas-text") {
         createTextCard(canvasData);
       } else {
         createImageCard(canvasData);
@@ -398,17 +436,25 @@ Gallery = (function() {
     }
   }
   
-  function clearBroadcast() {
-    var message = "gallery-clear";
+  function clearBroadcasts() {
+    socket.emit("send canvas reporter", {
+      hubnetMessageSource: "all-users", 
+      hubnetMessageTag: "canvas-clear-all", 
+      hubnetMessage: ""
+    }); 
+  }
+  
+  function clearBroadcast(name) {
     socket.emit("send canvas reporter", {
       hubnetMessageSource: "all-users", 
       hubnetMessageTag: "canvas-clear", 
-      hubnetMessage: message
+      hubnetMessage: name
     }); 
   }
   
   function broadcastText(text) {
-    var message = "gallery-text"+text;
+    //var message = "galry-text"+text;
+    var message = text;
     socket.emit("send canvas reporter", {
       hubnetMessageSource: "all-users", 
       hubnetMessageTag: "canvas-text", 
@@ -443,7 +489,7 @@ Gallery = (function() {
     var drawNetLogoCanvas = ((mapVisible && mapOff && true) || (graphVisible && graphOff && true) || (mapVisible === graphVisible)) ? true : false;
     if (drawMapLayer || drawGraphLayer) {
       var container = drawMapLayer ? "mapContainer" : "graphContainer";
-      html2canvas(document.getElementById(container), {
+      window.exports.html2canvas(document.getElementById(container), {
         useCORS: true
         }).then(function (canvas) {
           var miniCanvasId = "miniSafariCanvasView";
@@ -522,10 +568,12 @@ Gallery = (function() {
   
   function broadcastPlot(originalPlotName) {
     var miniCanvasId;
+    var width;
+    var height;
     var plotName = originalPlotName.replace(" ","-");
     if (is_safari) {
       if ($("#miniSafariCanvas"+plotName).length === 0) {
-        $("body").append("<canvas id=\"miniSafariCanvas"+plotName+"\" width=\"200\" height=\"200\" style=\"display:none\"></canvas>");
+        $("body").append("<canvas id=\"miniSafariCanvas"+plotName+"\" width=\"250\" height=\"250\" style=\"display:none\"></canvas>");
       }
       miniCanvasId = "miniSafariCanvas"+plotName;
     } else {
@@ -549,18 +597,20 @@ Gallery = (function() {
       plotsObject[plotName].setAttribute("width",dataObj.width);
       plotsObject[plotName].setAttribute("height",dataObj.height);
       plotsObject[plotName].onload = function () {
+        width = this.getAttribute("width");
+        height = this.getAttribute("height");
         var miniCanvas = document.getElementById(this.getAttribute("miniCanvasId"));
         var miniCtx = miniCanvas.getContext('2d');  
         miniCtx.fillStyle="#FFFFFF";
         miniCtx.fillRect(0,0,canvasWidth,canvasWidth);
         miniCtx.fillStyle="#000000";
-        miniCtx.fillRect(0,((canvasWidth - this.getAttribute("height")) / 2),this.getAttribute("width"),this.getAttribute("height") + 2);
+        miniCtx.fillRect(0,((canvasWidth - height) / 2),width,height + 2);
         miniCtx.drawImage(
           plotsObject[this.getAttribute("plotName")], 
           1, 
-          ((canvasWidth - this.getAttribute("height")) / 2) + 1, 
-          this.getAttribute("width") - 2, 
-          this.getAttribute("height")
+          (((canvasWidth - height) / 2) + 1), 
+          width - 2, 
+          height - 2
         );
         socket.emit("send canvas reporter", {
           hubnetMessageSource: "all-users", 
@@ -601,7 +651,7 @@ Gallery = (function() {
     return canvasList;
   }
   
-  function getVacantCanvasList() {
+  function getVacantIndices() {
     var canvasList = [];
     $(".gbcc-gallery li").each(function(index) {
       if ($(this).attr("claimed") == "false") {
@@ -619,6 +669,28 @@ Gallery = (function() {
     return userList;
   }
   
+  function getActiveUserList() {
+    var userList = [];
+    for (var x in userData) {
+      if (x && userData[x].reserved && userData[x].reserved.exists) { 
+        userList.push(x); 
+      }
+    }
+    return userList;
+  }
+  
+  function cloneCanvas() {
+    socket.emit('send canvas override', {
+      hubnetMessageSource: "server",
+      hubnetMessageTag: "clone-canvas",
+      hubnetMessage: ""
+    });
+  }
+  
+  function removeCanvas(userId) {
+    
+  }
+  
   return {
     displayCanvas: displayCanvas,
     broadcastView: broadcastView,
@@ -626,15 +698,18 @@ Gallery = (function() {
     broadcastText: broadcastText,
     broadcastAvatar: broadcastAvatar,
     clearBroadcast: clearBroadcast,
+    clearBroadcasts: clearBroadcasts,
     setupGallery: setupGallery,
     whoAmI: whoAmI,
     showPatches: showPatches,
     hidePatches: hidePatches,
     adoptCanvas: adoptCanvas,
     getCanvasList: getCanvasList,
-    getVacantCanvasList: getVacantCanvasList,
-    getUserList: getUserList
-    
+    getVacantIndices: getVacantIndices,
+    getUserList: getUserList,
+    getActiveUserList: getActiveUserList,
+    cloneCanvas: cloneCanvas,
+    removeCanvas: removeCanvas
   };
 
 })();
