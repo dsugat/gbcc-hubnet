@@ -16,7 +16,7 @@
     "allowMultipleSelections": false,
     "allowCanvasForeverButtons": false,
     "allowGalleryControls": false,
-    "allowTeacherControls": false,
+    "allowTeacherControls": true,
     "legacyHubnet": true,
     "secondViewString": false
   }
