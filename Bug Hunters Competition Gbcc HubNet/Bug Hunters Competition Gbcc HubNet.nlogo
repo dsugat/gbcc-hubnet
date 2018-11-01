@@ -82,7 +82,7 @@ to setup
   set offspring-bugs 0
 
   ;; setting colors
-  set bugs-color (violet )
+  set bugs-color (violet)
   set grass-color (green)
   set dirt-color (gray - 1)
   set not-grown-back-color white
