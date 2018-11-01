@@ -1,4 +1,5 @@
-globals [
+globals
+[
   ;; global variables related to color
   bugs-color
   grass-color
@@ -76,13 +77,12 @@ to setup
   set bugs-stride 1
   set bugs-reproduce-energy 100
   set bugs-energy-from-food 4  ;; set to 4 by default in this model.
-                               ;; In other Bug Hunt Models (such as Bug Hunt Consumers), bug-energy-from-food has a default of 4, but is slider adjustable
-
+                               ;; In other Bug Hunt Models (such as Bug Hunt Consumers), bug-energy-from-food has a default of 4, but is slider adjustable.
   set dead-bugs 0
   set offspring-bugs 0
 
   ;; setting colors
-  set bugs-color (violet)
+  set bugs-color (violet )
   set grass-color (green)
   set dirt-color (gray - 1)
   set not-grown-back-color white
@@ -106,7 +106,7 @@ end
 to setup-a-new-bugs-for-a-new-player [p-user-id]
    set hidden? false
    set color (magenta - 1)
-   set size 1  ;; easier to see
+   set size 2  ;; easier to see
    set label-color blue
 
    set energy 10 * bugs-energy-from-food
@@ -474,7 +474,7 @@ initial-#-automated-bugs
 initial-#-automated-bugs
 0
 100
-20.0
+0.0
 1
 1
 NIL
@@ -551,7 +551,7 @@ player-vision
 player-vision
 1
 10
-0.0
+4.0
 1
 1
 NIL
@@ -632,7 +632,7 @@ sprout-delay-time
 sprout-delay-time
 0
 200
-0.0
+50.0
 50
 1
 NIL
