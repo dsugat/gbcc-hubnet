@@ -46,8 +46,8 @@ patches-own [
 
 
 to startup ;; setting up hubnet
-  hubnet-reset
-  setup
+  ;hubnet-reset
+  ;setup
 end
 
 
