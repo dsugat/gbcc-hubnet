@@ -474,7 +474,7 @@ initial-#-automated-bugs
 initial-#-automated-bugs
 0
 100
-0.0
+20.0
 1
 1
 NIL
