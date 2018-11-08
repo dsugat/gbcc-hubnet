@@ -17,7 +17,7 @@ Interface = (function() {
     $(".admin-body").css("display","inline");
     // hide all widgets
     $(".netlogo-widget").addClass("hidden");
-    $(".gbcc-widget").addClass("hidden");    
+    $(".gbcc-widget").addClass("hidden");
     $(".netlogo-model-title").removeClass("hidden");
     $("#netlogo-title").html("");
     // show Welcome Students reporter
@@ -56,10 +56,10 @@ Interface = (function() {
       index++;
       roomName = rooms[i];
       passCode = "";
-      
-      if (roomName.indexOf(":") > 0) { 
+
+      if (roomName.indexOf(":") > 0) {
         passCode = roomName.substr(roomName.indexOf(":")+1, roomName.length).toUpperCase().trim();
-        roomName = roomName.substr(0,roomName.indexOf(":")); 
+        roomName = roomName.substr(0,roomName.indexOf(":"));
       }
       roomNames["netlogo-button-"+index] = rooms[i];
       passCodes["netlogo-button-"+index] = passCode;
@@ -72,7 +72,7 @@ Interface = (function() {
       $(".login-room-button-container").on("click", "#netlogo-button-"+index, function() {
         var myRoom = roomNames[$(this).attr("id")];
         if (passCodes[$(this).attr("id")] === "") {
-          socket.emit("enter room", {room: myRoom});  
+          socket.emit("enter room", {room: myRoom});
         } else {
           var response = window.prompt("What is the Entry Code?","").toUpperCase().trim();
           if (response === passCodes[$(this).attr("id")]) {
@@ -92,7 +92,7 @@ Interface = (function() {
     widget += "</div>";
     $("body").append(widget);
     $("#tipHeading").on("click", function() {
-      ($("#tips").css("display") === "none") ? $("#tips").css("display","inline-block") : $("#tips").css("display","none"); 
+      ($("#tips").css("display") === "none") ? $("#tips").css("display","inline-block") : $("#tips").css("display","none");
     });
     $("#exportHtmlButton").css("display","none");
     $(".netlogo-interface-unlocker-container").css("display","none");
@@ -122,7 +122,7 @@ Interface = (function() {
     $(".teacher-controls").css("display","none");
     if (activityType === "hubnet") {
       $(".netlogo-view-container").css("pointer-events","auto");
-      $(".netlogo-button:not(.hidden)").click(function(e){clickHandler(this, e, "button");});
+      //$(".netlogo-button:not(.hidden)").click(function(e){clickHandler(this, e, "button");});
       $(".netlogo-slider:not(.hidden)").click(function(e){clickHandler(this, e, "slider");});
       $(".netlogo-switcher:not(.hidden)").click(function(e){clickHandler(this, e, "switcher");});
       $(".netlogo-chooser:not(.hidden)").click(function(e){clickHandler(this, e, "chooser");});
@@ -184,10 +184,10 @@ Interface = (function() {
       }
     });
   }
-  
+
   function highlightOutputAreasOnClick() {
     // highlight all output areas on click
-    $(".netlogo-output").click(function() { 
+    $(".netlogo-output").click(function() {
       var sel, range;
       var el = $(this)[0];
       if (window.getSelection && document.createRange) { //Browser compatibility
@@ -210,7 +210,7 @@ Interface = (function() {
       }
     });
   }
-  
+
   function addTeacherControls() {
     // add show/hide client view or tabs
     var viewWidth = parseFloat($(".netlogo-canvas").css("width"));
@@ -245,11 +245,11 @@ Interface = (function() {
       mirroringEnabled = $(this).prop("checked") ? true : false;
       if (mirroringEnabled) {
         var state = world.exportCSV();
-        var blob = myCanvas.toDataURL("image/png", 0.5); 
+        var blob = myCanvas.toDataURL("image/png", 0.5);
 
         socket.emit('teacher requests UI change', {'display': mirroringEnabled, 'state': state, 'type': 'mirror', 'image': blob});
       } else {
-        socket.emit('teacher requests UI change', {'display': mirroringEnabled, 'state': "", 'type': 'mirror' });        
+        socket.emit('teacher requests UI change', {'display': mirroringEnabled, 'state': "", 'type': 'mirror' });
       }
       socket.emit('teacher requests UI change', {'display': mirroringEnabled, 'type': 'view'});
     });
@@ -263,7 +263,7 @@ Interface = (function() {
       $("#"+items[i]).removeClass("hidden");
     }
   }
-  
+
   return {
     showLogin: displayLoginInterface,
     showTeacher: displayTeacherInterface,
@@ -272,5 +272,5 @@ Interface = (function() {
     showAdmin: displayAdminInterface,
     clearRoom: clearRoom
   };
- 
+
 })();
