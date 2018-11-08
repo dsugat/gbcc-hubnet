@@ -971,7 +971,7 @@ NIL
 1
 T
 OBSERVER
-NIL
+W
 W
 
 BUTTON
@@ -985,7 +985,7 @@ NIL
 1
 T
 OBSERVER
-NIL
+D
 D
 
 BUTTON
@@ -999,7 +999,7 @@ NIL
 1
 T
 OBSERVER
-NIL
+D
 A
 
 BUTTON
@@ -1013,7 +1013,7 @@ NIL
 1
 T
 OBSERVER
-NIL
+S
 S
 
 @#$#@#$#@
